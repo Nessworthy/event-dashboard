@@ -19,7 +19,9 @@ export default class TokenGenerator {
             return this._currentToken
         }
 
+        console.info('Fetching new token.')
         this._currentToken = await this._auth.credentials.getToken()
+        console.info('Token obtained.')
 
         return this._currentToken
     }

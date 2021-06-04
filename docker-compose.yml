@@ -29,8 +29,9 @@ services:
     networks:
       - public
       - event_storage
-#    depends_on:
-#      - event-resource
+    depends_on:
+      # - event-resource
+      - authorization
 
 #  event-resource:
 

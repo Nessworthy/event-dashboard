@@ -1,12 +1,12 @@
 {
   "auth": {
-    "url": "http://authorization/v1/oauth/tokens",
+    "url": "http://authorization/tokens",
     "client_id": "...",
     "client_secret": "...",
     "scopes": [ "event:create" ]
   },
   "resource": {
-      "url": "http://event-resource"
+    "url": "http://event-resource"
   },
   "events": {
     "first_generate_from": "2021-01-01T00:00:00Z",
