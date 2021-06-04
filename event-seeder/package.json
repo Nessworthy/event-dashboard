@@ -20,7 +20,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@tsconfig/node12": "^1.0.7",
+    "@tsconfig/node16": "^1.0.1",
     "@types/axios": "^0.14.0",
     "@types/commander": "^2.12.2",
     "@types/faker": "^5.5.6",
