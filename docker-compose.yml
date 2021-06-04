@@ -1,0 +1,81 @@
+version: "3.9"
+services:
+
+  event-storage:
+
+    # Used to hold event data persistently.
+
+    image: percona:ps-5.7.33
+    volumes:
+      - events-db:/var/lib/mysql
+      - ./event-storage/patches:/docker-entrypoint-initdb.d
+    env_file:
+      - ./config/event-storage.env
+    networks:
+      - event_storage
+    ports:
+      - 3306:3306 # DEBUG
+
+  event-seeder:
+
+    # Used as the event data seeder. Will periodically create and send new events to the resource server.
+
+    build:
+      context: ./event-seeder
+    volumes:
+      - ./config/event-seeder.json:/event-seeder.json
+      - event-seed-cache:/cache
+    command: "--config /event-seeder.json --cache /cache"
+    networks:
+      - public
+      - event_storage
+#    depends_on:
+#      - event-resource
+
+#  event-resource:
+
+    # Acts as the resource service for events, exposes an API for event ingress and fetching.
+
+#    build:
+#      context: ./event-resource
+#    networks:
+#      - event_storage
+#      - public
+#    ports:
+#      - 8080:
+#    depends_on:
+#      - event-storage
+#      - authorization
+
+#  authorization:
+
+    # Acts as the authorization service for client authorization and authentication.
+
+#    build:
+#      context: ./authorization
+#    networks:
+#      - public
+#    ports:
+#      - 8081:
+
+#  dashboard:
+#    build:
+#      context: ./dashboard
+#    networks:
+#      - public
+#    ports:
+#      - 8082:
+#    depends_on:
+#      - event-resource
+#      - authorization
+
+volumes:
+  events-db:         # Event data storage.
+  event-seed-cache:  # For the seeder to remember the object names it has generated for each object type.
+networks:
+  event_storage:     # Event storage only, no external access.
+  public:            # "Public" access. Services are permitted to talk to each other and other external clients.
+
+configs:
+  event-seeder:
+    file: ./config/event-seeder.json

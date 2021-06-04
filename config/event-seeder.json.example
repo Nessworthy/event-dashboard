@@ -1,0 +1,216 @@
+{
+  "auth": {
+    "url": "http://authorization/v1/oauth/tokens",
+    "client_id": "...",
+    "client_secret": "...",
+    "scopes": [ "event:create" ]
+  },
+  "resource": {
+      "url": "http://event-resource"
+  },
+  "events": {
+    "first_generate_from": "2021-01-01T00:00:00Z",
+    "first_generate_min_seconds_between_events": 3600,
+    "first_generate_max_seconds_between_events": 6000,
+    "min_seconds_between_events": 2,
+    "max_seconds_between_events": 120
+  },
+  "objects": {
+    "types": {
+      "Cluster": {
+        "starting_event": "CLUSTER_DISCOVERED",
+        "events": [
+          {
+            "name": "CLUSTER_DISCOVERED",
+            "detail": "This cluster has been discovered.",
+            "severity": "information",
+            "leads": ["CLUSTER_OFFLINE", "CLUSTER_NODE_OFFLINE", "CLUSTER_DEGRADED"]
+          },
+          {
+            "name": "CLUSTER_OFFLINE",
+            "detail": "This cluster has become unreachable.",
+            "severity": "critical",
+            "leads": ["CLUSTER_RECOVERED"]
+          },
+          {
+            "name": "CLUSTER_RECOVERED",
+            "detail": "This cluster has recovered and is now healthy.",
+            "severity": "information",
+            "leads": ["CLUSTER_OFFLINE", "CLUSTER_NODE_OFFLINE", "CLUSTER_DEGRADED"]
+          },
+          {
+            "name": "CLUSTER_NODE_OFFLINE",
+            "detail": "A node in this cluster has become unreachable.",
+            "severity": "error",
+            "leads": ["CLUSTER_OFFLINE", "CLUSTER_NODE_RECOVERED"]
+          },
+          {
+            "name": "CLUSTER_NODE_RECOVERED",
+            "detail": "A node in this cluster has recovered.",
+            "severity": "information",
+            "leads": ["CLUSTER_OFFLINE", "CLUSTER_NODE_OFFLINE", "CLUSTER_DEGRADED"]
+          },
+          {
+            "name": "CLUSTER_DEGRADED",
+            "detail": "This cluster's performance has degraded.",
+            "severity": "warning",
+            "leads": ["CLUSTER_RECOVERED", "CLUSTER_NODE_OFFLINE", "CLUSTER_OFFLINE"]
+          }
+        ]
+      },
+      "VmwareVm":{
+        "starting_event": "VM_DISCOVERED",
+        "events": [
+          {
+            "name": "VM_DISCOVERED",
+            "detail": "This VM has been discovered.",
+            "severity": "information",
+            "leads": ["VM_UNRESPONSIVE"]
+          },
+          {
+            "name": "VM_UNRESPONSIVE",
+            "detail": "This VM has become unresponsive.",
+            "severity": "critical",
+            "leads": ["VM_RECOVERED"]
+          },
+          {
+            "name": "VM_RECOVERED",
+            "detail": "This VM has recovered and is now healthy.",
+            "severity": "information",
+            "leads": ["VM_UNRESPONSIVE"]
+          }
+        ]
+      },
+      "WindowsFileset": {
+        "starting_event": "FILESET_DISCOVERED",
+        "events": [
+          {
+            "name": "FILESET_DISCOVERED",
+            "detail": "This fileset has been discovered.",
+            "severity": "information",
+            "leads": ["FILESET_CORRUPTED", "FILESET_DEGRADED"]
+          },
+          {
+            "name": "FILESET_CORRUPTED",
+            "detail": "This fileset appears corrupted and cannot be used.",
+            "severity": "critical",
+            "leads": ["FILESET_RECOVERED"]
+          },
+          {
+            "name": "FILESET_RECOVERED",
+            "detail": "This fileset has recovered and is now healthy.",
+            "severity": "information",
+            "leads": ["FILESET_CORRUPTED", "FILESET_DEGRADED"]
+          },
+          {
+            "name": "FILESET_DEGRADED",
+            "detail": "This fileset has degraded write performance.",
+            "severity": "warning",
+            "leads": ["FILESET_RECOVERED"]
+          }
+        ]
+      },
+      "LinuxFileset":{
+        "starting_event": "FILESET_DISCOVERED",
+        "events": [
+          {
+            "name": "FILESET_DISCOVERED",
+            "detail": "This fileset has been discovered.",
+            "severity": "information",
+            "leads": ["FILESET_CORRUPTED", "FILESET_DEGRADED"]
+          },
+          {
+            "name": "FILESET_CORRUPTED",
+            "detail": "This fileset appears corrupted and cannot be used.",
+            "severity": "critical",
+            "leads": ["FILESET_RECOVERED"]
+          },
+          {
+            "name": "FILESET_RECOVERED",
+            "detail": "This fileset has recovered and is now healthy.",
+            "severity": "information",
+            "leads": ["FILESET_CORRUPTED", "FILESET_DEGRADED"]
+          },
+          {
+            "name": "FILESET_DEGRADED",
+            "detail": "This fileset has degraded write performance.",
+            "severity": "warning",
+            "leads": ["FILESET_RECOVERED"]
+          }
+        ]
+      },
+      "OracleDb": {
+        "starting_event": "DATABASE_DISCOVERED",
+        "events": [
+          {
+            "name": "DATABASE_DISCOVERED",
+            "detail": "This database has been discovered.",
+            "severity": "information",
+            "leads": ["DATABASE_UNREACHABLE", "DATABASE_NEARLY_FULL", "DATABASE_PERFORMANCE_DEGRADED"]
+          },
+          {
+            "name": "DATABASE_UNREACHABLE",
+            "detail": "This database is unreachable.",
+            "severity": "critical",
+            "leads": ["DATABASE_RECOVERED"]
+          },
+          {
+            "name": "DATABASE_RECOVERED",
+            "detail": "This database has recovered and is now healthy.",
+            "severity": "information",
+            "leads": ["DATABASE_UNREACHABLE", "DATABASE_NEARLY_FULL", "DATABASE_PERFORMANCE_DEGRADED"]
+          },
+          {
+            "name": "DATABASE_NEARLY_FULL",
+            "detail": "This database is running low on disk space.",
+            "severity": "error",
+            "leads": ["DATABASE_RECOVERED", "DATABASE_UNREACHABLE"]
+          },
+          {
+            "name": "DATABASE_PERFORMANCE_DEGRADED",
+            "detail": "This database's write performance has severely degraded.",
+            "severity": "warning",
+            "leads": ["DATABASE_RECOVERED", "DATABASE_UNREACHABLE", "DATABASE_NEARLY_FULL"]
+          }
+        ]
+      },
+      "Mssql":{
+        "starting_event": "DATABASE_DISCOVERED",
+        "events": [
+          {
+            "name": "DATABASE_DISCOVERED",
+            "detail": "This database has been discovered.",
+            "severity": "information",
+            "leads": ["DATABASE_UNREACHABLE", "DATABASE_NEARLY_FULL", "DATABASE_PERFORMANCE_DEGRADED"]
+          },
+          {
+            "name": "DATABASE_UNREACHABLE",
+            "detail": "This database is unreachable.",
+            "severity": "critical",
+            "leads": ["DATABASE_RECOVERED"]
+          },
+          {
+            "name": "DATABASE_RECOVERED",
+            "detail": "This database has recovered and is now healthy.",
+            "severity": "information",
+            "leads": ["DATABASE_UNREACHABLE", "DATABASE_NEARLY_FULL", "DATABASE_PERFORMANCE_DEGRADED"]
+          },
+          {
+            "name": "DATABASE_NEARLY_FULL",
+            "detail": "This database is running low on disk space.",
+            "severity": "error",
+            "leads": ["DATABASE_RECOVERED", "DATABASE_UNREACHABLE"]
+          },
+          {
+            "name": "DATABASE_PERFORMANCE_DEGRADED",
+            "detail": "This database's write performance has severely degraded.",
+            "severity": "warning",
+            "leads": ["DATABASE_RECOVERED", "DATABASE_UNREACHABLE", "DATABASE_NEARLY_FULL"]
+          }
+        ]
+      }
+    },
+    "min_unique_names_per_object_type": 10,
+    "max_unique_names_per_object_type": 20
+  }
+}
