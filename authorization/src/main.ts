@@ -1,20 +1,36 @@
 import {Request, Response} from "express";
 const crypto = require('crypto')
 const express = require('express')
+const bodyParser = require('body-parser')
 
 const app = express()
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post("/token", function(req: Request, res: Response) {
-    const expires = new Date()
-    expires.setTime(expires.getTime() + 60 * 60 * 24 * 1000)
+app.post('/token', function(req: Request, res: Response) {
+
+    let scopes = []
+
+    console.log("Request received for a new access token!")
+
+    if (req.body) {
+        if (Array.isArray(req.body.scope)) {
+            scopes = req.body.scope
+        } else if (typeof req.body.scope === "string") {
+            scopes = [req.body.scope]
+        }
+    }
+
     res.send(JSON.stringify({
-        'access_token': crypto.randomBytes(32).toString('hex'),
-        'expires': expires
+        access_token: crypto.randomBytes(32).toString('hex'),
+        refresh_token: crypto.randomBytes(32).toString('hex'),
+        expires_in: 60 * 60 * 24,
+        token_type: 'bearer',
+        scope: scopes
     }))
     return res
 })
 
-app.post("/introspect", function(req: Request, res: Response) {
+app.post('/introspect', function(req: Request, res: Response) {
     if (!req.headers.authorization) {
         res.status(401)
         return res
@@ -42,4 +58,6 @@ app.post("/introspect", function(req: Request, res: Response) {
     })
 });
 
-app.listen(80)
+app.listen(80, () => {
+    console.info("Authorization server is up and running!")
+})
