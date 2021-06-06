@@ -14,16 +14,18 @@ export default class EventDispatcher {
     }
 
     async dispatch(event: Event): Promise<void> {
+        console.debug("Dispatching new event", event)
         const token = await this._tokenGenerator.fetchToken()
         const result = await axios.post(`${this._resourceServerUri}/api/event`, event, {
             headers: { Authorization: `Bearer ${token.accessToken}` },
             responseType: 'json',
         })
 
-        if (result.data.status === 201) {
+        if (result.status === 201) {
+            console.debug("Event creation was successful.")
             return
         }
 
-        throw new Error(`Response from dispatching event was not as expected. Expected 201, received ${result.data.status}`)
+        throw new Error(`Response from dispatching event was not as expected. Expected 201, received ${result.status}`)
     }
 }

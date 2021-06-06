@@ -30,23 +30,23 @@ services:
       - public
       - event_storage
     depends_on:
-      # - event-resource
+      - event-resource
       - authorization
 
-#  event-resource:
+  event-resource:
 
     # Acts as the resource service for events, exposes an API for event ingress and fetching.
 
-#    build:
-#      context: ./event-resource
-#    networks:
-#      - event_storage
-#      - public
-#    ports:
-#      - 8080:
-#    depends_on:
-#      - event-storage
-#      - authorization
+    build:
+      context: ./event-resource
+    networks:
+      - event_storage
+      - public
+    ports:
+      - 8080:80
+    depends_on:
+      - event-storage
+      - authorization
 
   authorization:
     # Acts as the authorization service for client authorization and authentication.

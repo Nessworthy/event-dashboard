@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import {Request, Response} from 'express';
 const crypto = require('crypto')
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -36,8 +36,9 @@ app.post('/introspect', function(req: Request, res: Response) {
         return res
     }
 
-    const tokenParts = req.headers.authorization.split(' ')
+    console.debug('Token introspection request received')
 
+    const tokenParts = req.headers.authorization.split(' ')
     if (tokenParts.length !== 2) {
         res.status(401)
         return res
