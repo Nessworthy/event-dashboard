@@ -58,16 +58,16 @@ services:
     ports:
       - 8081:80
 
-#  dashboard:
-#    build:
-#      context: ./dashboard
-#    networks:
-#      - public
-#    ports:
-#      - 8082:
-#    depends_on:
-#      - event-resource
-#      - authorization
+  dashboard:
+    build:
+      context: ./dashboard
+    networks:
+      - public
+    ports:
+      - 8082:5000
+    depends_on:
+      - event-resource
+      - authorization
 
 volumes:
   events-db:         # Event data storage.

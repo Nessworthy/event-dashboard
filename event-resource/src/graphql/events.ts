@@ -1,5 +1,5 @@
 import {gql, PubSub} from 'apollo-server-express'
-import {FindOptions, Sequelize, fn} from "sequelize";
+import sequelize, {FindOptions, Sequelize, fn} from "sequelize";
 import {GraphQLResolverMap} from "@apollographql/apollo-tools/src/schema/resolverMap";
 
 export function defineGraphQLEvents(database: Sequelize, eventSubscription: PubSub) {
@@ -8,7 +8,7 @@ export function defineGraphQLEvents(database: Sequelize, eventSubscription: PubS
         extend type Query {
             events(limit: Int, order: String, reverse: Boolean): [Event]
             event(event_id: ID!): Event
-            eventAggregationOverTime(from: Int!, to: Int!, period: AggregationPeriod!): EventAggregationOverTime
+            eventAggregationOverTime(from: String!, to: String!, period: AggregationPeriod!, split: AggregationSubField!): EventAggregationOverTime
             eventMetrics: EventMetrics
         }
         enum AggregationPeriod {
@@ -16,7 +16,11 @@ export function defineGraphQLEvents(database: Sequelize, eventSubscription: PubS
             hourly
             daily
             weekly
+            monthly
             yearly
+        }
+        enum AggregationSubField {
+            event_severity
         }
         type Event {
             event_id: ID!
@@ -28,18 +32,15 @@ export function defineGraphQLEvents(database: Sequelize, eventSubscription: PubS
             object_name: String!
         }
         type EventAggregationOverTime {
-            minutely: EventAggregationResult,
-            hourly: EventAggregationResult,
-            daily: EventAggregationResult,
-            weekly: EventAggregationResult,
-            yearly: EventAggregationResult
-        }
-        type EventAggregationResult {
             buckets: [EventAggregationResultBucket]
         }
         type EventAggregationResultBucket {
             key: String!
-            events: [Event]
+            buckets: [EventAggregationResultSubBucket]
+        }
+        type EventAggregationResultSubBucket {
+            key: String!
+            count: Int!
         }
         type EventMetrics {
             total: Int!
@@ -91,25 +92,56 @@ export function defineGraphQLEvents(database: Sequelize, eventSubscription: PubS
                     bySeverity: totals
                 }
             },
-            eventAggregationOverTime: async (parent: any, args: any, context: any, info: any) => {
-                console.log(info)
-                return {
-                    minutely: {
-                        buckets: [
-                            {
-                                key: "2020-12-12",
-                                events: {
-                                    event_id: "test_id",
-                                    event_name: "Test Name",
-                                    event_detail: "Test detail.",
-                                    event_time: "2021-12-12T01:00:25Z",
-                                    event_severity: "critical",
-                                    object_type: "Cluster",
-                                    object_name: "cluster name"
+            eventAggregationOverTime: async (parent: any, args: any) => {
+                const fromDate = new Date(args.from)
+                const toDate = new Date(args.to)
+
+                const periods: any = {
+                    minutely: 60,
+                    hourly: 60 * 60,
+                    daily: 60 * 60 * 24,
+                    weekly: 60 * 60 * 24 * 7,
+                    monthly: 60 * 60 * 24 * 30, // TODO: Ew
+                    yearly: 60 * 60 * 24 * 365
+                }
+
+                const result = await database.query(
+                    "SELECT COUNT(*) AS total," +
+                    ` ${args.split} AS split_field,` +
+                    ` (FLOOR(event_time /  (${periods[args.period]}) ) ) AS bucket` +
+                    " FROM events" +
+                    " WHERE event_time BETWEEN ? AND ?" +
+                    ` GROUP BY bucket, ${args.split}` +
+                    " ORDER BY bucket DESC",
+                    {
+                        replacements: [Math.floor(fromDate.getTime() / 1000), Math.floor(toDate.getTime() / 1000)]
+                    }
+                )
+
+                const buckets: any = {}
+
+                result.forEach(
+                    (results: any) => {
+                        results.forEach((row: any) => {
+                            const bucketDate = new Date()
+                            bucketDate.setTime(periods[args.period] * row.bucket * 1000)
+                            const bucket_key = bucketDate.toISOString()
+                            if (!(bucket_key in buckets)) {
+                                buckets[bucket_key] = {
+                                    key: bucket_key,
+                                    buckets: []
                                 }
                             }
-                        ]
+                            buckets[bucket_key].buckets.push({
+                                key: row.split_field,
+                                count: row.total
+                            })
+                        })
                     }
+                )
+
+                return {
+                    buckets: Object.values(buckets)
                 }
             }
         },

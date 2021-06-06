@@ -4,6 +4,8 @@ import { ObservableQuery } from '@apollo/client';
 import { ObjectEvent } from '../types/ObjectEvent';
 import { RecentEventRow } from './RecentEventRow'
 
+import Spinner from 'react-bootstrap/Spinner'
+
 
 type RecentEventProps = {
     subscribeToNewEvents: ObservableQuery,
@@ -35,7 +37,7 @@ export class RecentEvents extends Component<any, any> {
             return (
                 <tr>
                     <td colSpan={6}>
-                        Loading...
+                        <Spinner animation="border" variant="primary" />
                     </td>
                 </tr>
             )
